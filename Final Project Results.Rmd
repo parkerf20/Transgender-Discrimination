@@ -1,0 +1,182 @@
+---
+title: "Transgender Discrimination"
+author: "Parker Foe"
+output: html_document
+---
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+require(knitr)
+opts_chunk$set(eval=FALSE)
+```
+
+# Fitting the trees
+
+
+```{r}
+library(tree)
+library(dplyr)
+is.na(Final.Data.Set)
+Discrimination=na.omit(Final.Data.Set)
+```
+
+
+```{r}
+#create training and testing set for our data
+set.seed(1)
+
+train = Discrimination %>%
+  sample_n(3000)
+
+test = Discrimination %>%
+  setdiff(train)
+```
+
+##discrimination
+
+```{r}
+tree_disc=tree(any.disc.any.sett~., train)
+summary(tree_disc)
+plot(tree_disc)
+text(tree_disc, pretty = 0)
+
+
+tree(formula = any.disc.any.sett ~ ., data = train)
+
+
+tree(formula = any.disc.any.sett ~ ., data = train)
+
+##rural
+rural = Discrimination %>%
+  filter("urbanrural"=="rural")
+tree_ruraldisc=tree(any.disc.any.sett~., rural)
+plot(tree_ruraldisc)
+text(tree_ruraldisc, pretty = 0)
+
+##urban
+urban = Discrimination %>%
+  filter("urbanrural"=="urban")
+tree_urbandisc=tree(any.disc.any.sett~., urban)
+plot(tree_urbandisc)
+text(tree_urbandisc, pretty = 0)
+```
+
+
+##health insurance##
+
+```{r}
+tree_health=tree(healthinsurance~., train)
+summary(tree_health)
+#plot the tree for tree_health
+plot(tree_health)
+text(tree_health, pretty = 0)
+tree_health
+```
+
+
+```{r}
+#Find the rate of performance on the test data
+tree_pred = predict(tree_health, test, type = "class")
+table(tree_health, test$healthinsurance)
+```
+
+
+##Education
+```{r}
+tree_education=tree(anyschoolprob~., train)
+plot(tree_education)
+text(tree_education, pretty = 0)
+
+tree_education2=tree(anyschoolprob~.-schoolastrans, train)
+summary(tree_education2)
+plot(tree_education2)
+text(tree_education2, pretty = 0)
+```
+
+##Health Diagnosis
+
+```{r}
+tree_healthdiag=tree(ever.received.gender.related.mental.health.diagnosis~., train)
+summary(tree_healthdiag)
+plot(tree_healthdiag)
+text(tree_healthdiag, pretty = 0)
+
+##current gender identity = male
+male = Discrimination %>%
+ filter(currentgender=="male")
+tree_malediagnosis=tree(ever.received.gender.related.mental.health.diagnosis~., male)
+summary(tree_malediagnosis)
+plot(tree_malediagnosis)
+text(tree_malediagnosis, pretty = 0)
+
+##current gender identity = female
+female = Discrimination %>%
+  filter(currentgender=="female")
+tree_femalediagnosis=tree(ever.received.gender.related.mental.health.diagnosis~., female)
+summary(tree_femalediagnosis)
+plot(tree_femalediagnosis)
+text(tree_femalediagnosis, pretty = 0)
+```
+
+
+##Income
+
+```{r}
+tree_income=tree(Income~., train)
+summary(tree_income)
+plot(tree_income)
+text(tree_income, pretty = -2.5)
+
+tree_income2=tree(Income~.-education, train )
+summary(tree_income2)
+plot(tree_income2)
+text(tree_income2)
+
+##male
+tree_income3=tree(Income~.-education, male)
+summary(tree_income3)
+plot(tree_income3)
+text(tree_income3, pretty = 0)
+
+##female
+
+tree_income4=tree(Income~.-education, female)
+summary(tree_income4)
+plot(tree_income4)
+text(tree_income4, pretty = 0)
+```
+
+
+
+# Bagging and Random Forests
+```{r}
+library(MASS)
+library(randomForest)
+```
+
+```{r}
+is.na (Discrimination)
+Discrimination2=na.omit(Discrimination)
+```
+
+```{r}
+#Bagging
+set.seed(1)
+bag_Discrimination2 = randomForest(any.disc.any.sett~., data = train, mtry = 10, importance = T)
+#table
+yhat_bag = predict(bag_Discrimination2, newdata = test)
+table(yhat_bag, test$any.disc.any.sett)
+```
+
+```{r}
+bag_Discrimination2 = randomForest(any.disc.any.sett~., data =  train, mtry = 11, ntree = 23)
+yhat_bag2 = predict(bag_Discrimination2, newdata = test)
+table(yhat_bag2, test$any.disc.any.sett)
+```
+
+
+```{r}
+set.seed(1)
+rf_Discrimination = randomForest(any.disc.any.sett~., data = train, mtry = 4, importance = TRUE)
+yhat_rf = predict(rf_Discrimination, newdata = test)
+table(yhat_rf, test$any.disc.any.sett)
+```
