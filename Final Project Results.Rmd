@@ -38,8 +38,6 @@ urban = Discrimination %>%
 tree_urbandisc=tree(any.disc.any.sett~., urban)
 plot(tree_urbandisc)
 text(tree_urbandisc, pretty = 0)
-```
-
 
 #health insurance#
 tree_health=tree(healthinsurance~., train)
@@ -53,8 +51,7 @@ tree_pred = predict(tree_health, test, type = "class")
 table(tree_health, test$healthinsurance)
 
 
-
-##Education
+#Education
 tree_education=tree(anyschoolprob~., train)
 plot(tree_education)
 text(tree_education, pretty = 0)
@@ -65,13 +62,13 @@ plot(tree_education2)
 text(tree_education2, pretty = 0)
 
 
-##Health Diagnosis
+#Health Diagnosis
 tree_healthdiag=tree(ever.received.gender.related.mental.health.diagnosis~., train)
 summary(tree_healthdiag)
 plot(tree_healthdiag)
 text(tree_healthdiag, pretty = 0)
 
-##current gender identity = male
+#current gender identity = male
 male = Discrimination %>%
  filter(currentgender=="male")
 tree_malediagnosis=tree(ever.received.gender.related.mental.health.diagnosis~., male)
@@ -88,8 +85,7 @@ plot(tree_femalediagnosis)
 text(tree_femalediagnosis, pretty = 0)
 
 
-##Income
-
+#Income
 tree_income=tree(Income~., train)
 summary(tree_income)
 plot(tree_income)
@@ -100,21 +96,17 @@ summary(tree_income2)
 plot(tree_income2)
 text(tree_income2)
 
-##male
+#male
 tree_income3=tree(Income~.-education, male)
 summary(tree_income3)
 plot(tree_income3)
 text(tree_income3, pretty = 0)
 
-##female
-
+#female
 tree_income4=tree(Income~.-education, female)
 summary(tree_income4)
 plot(tree_income4)
 text(tree_income4, pretty = 0)
-```
-
-
 
 # Bagging and Random Forests
 library(MASS)
